@@ -1,0 +1,44 @@
+
+version: '3'
+
+services:
+
+  elasticsearch:
+      build: elasticsearch/
+      volumes:
+        - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      ports:
+        - "9200:9200"
+        - "9300:9300"
+      environment:
+        - "cluster.name=elasticsearch"
+        - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+        - "XPACK_SECURITY_ENABLED=false"
+        -  "discovery.type=single-node"
+      networks:
+        - elk
+      healthcheck:
+        test: "curl http://elasticsearch:9200"
+        interval: "1s"
+        timeout: "3s"
+        retries: 60
+
+  redis:
+    image: "redis:alpine"
+
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - "ELASTICSEARCH_HOST=host.docker.internal"
+      - "ELASTICSEARCH_PORT=9200"
+      - "SERVICE_PORT=5000"
+      - "REDIS_PORT=6379"
+      - "REDIS_HOST=redis"
+    depends_on:
+      - elasticsearch
+
+networks:
+  elk:
+    driver: bridge

@@ -1,0 +1,70 @@
+swagger: "2.0"
+
+info:
+  version: 1.0.0
+  title: Ministry Of Names Service
+  license:
+    name: MIT
+
+basePath: /api/v1/ministry_of_names/
+
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /citizen:
+    post:
+      operationId: api.citizen.class_instance.post
+      parameters:
+        - in: body
+          name: citizen
+          required: true
+          schema:
+            $ref: '#/definitions/Citizen'
+      responses:
+        '201':
+          description: 'Citizen Registered'
+        '409':
+          description: 'Citizen first name already exists or similar (one edit distance)'
+        '400':
+          description: 'Failed to registerer the citizen'
+
+    get:
+      tags: [Citizens]
+      operationId: api.citizen.class_instance.get
+      summary: Search for citizens
+      parameters:
+        - name: first_name
+          in: query
+          type: string
+          pattern: "^[a-zA-Z0-9]*$"
+      responses:
+        200:
+          description: Return citizens
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Citizen'
+
+
+definitions:
+  Citizen:
+    type: object
+    required:
+      - first_name
+      - last_name
+    properties:
+      first_name:
+        type: string
+        description: First name - Unique identifier
+        example: "Johnny"
+      last_name:
+        type: string
+        description: Citizen last name
+        example: "Shtekel"
+
+
